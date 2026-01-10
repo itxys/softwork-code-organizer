@@ -1,0 +1,146 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>软著材料生成器 | UNIT-01</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="scan-overlay" id="scanOverlay">
+    <div class="scan-line"></div>
+    <div class="scan-beam"></div>
+    <div class="scan-text">SCANNING_DATA_STREAM...</div>
+  </div>
+  <div class="app">
+    <header class="app-header">
+      <div class="header-top">
+        <div class="lights">
+          <span class="light red active"></span>
+          <span class="light amber"></span>
+          <span class="light green"></span>
+        </div>
+        <div class="model-tag">系统单元-01</div>
+      </div>
+      <div class="title-group">
+        <h1 class="title">软著代码资料整理器</h1>
+        <div class="subtitle">自动化技术文档生成系统 // 内部版本: 2026.01</div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="panel" data-label="项目配置">
+        <div class="panel-inner">
+          <div class="panel-title">项目信息 / PROJECT INFO</div>
+          <div class="form-row">
+            <label>项目目录 <span class="en">路径定位</span></label>
+            <div class="inline">
+              <input id="projectPath" type="text" placeholder="选择待处理的项目目录" readonly />
+              <button id="btnSelectProject" class="tactile">选择目录</button>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-row">
+              <label>软件名称 <span class="en">应用标识</span></label>
+              <input id="softwareName" type="text" placeholder="例如：煮蛋计时器" />
+            </div>
+            <div class="form-row">
+              <label>版本号 <span class="en">版本标识</span></label>
+              <input id="softwareVersion" type="text" placeholder="1.0" value="1.0" />
+            </div>
+          </div>
+          <div class="form-row">
+            <label>类型 <span class="en">模块类别</span></label>
+            <div class="inline radio-group">
+              <label class="radio tactile">
+                <input type="radio" name="softwareType" value="software" checked />
+                <span class="radio-custom"></span> 软件 / SOFTWARE
+              </label>
+              <label class="radio tactile">
+                <input type="radio" name="softwareType" value="game" />
+                <span class="radio-custom"></span> 游戏 / GAME
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" data-label="导出配置">
+        <div class="panel-inner">
+          <div class="panel-title">导出配置 / OUTPUT CONFIG</div>
+          <div class="form-row">
+            <label>输出目录 <span class="en">目标路径</span></label>
+            <div class="inline">
+              <input id="outputDir" type="text" placeholder="选择输出目录" readonly />
+              <button id="btnSelectOutput" class="tactile">选择目录</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>规则说明 <span class="en">协议详情</span></label>
+            <div class="hint">规则：总计 60 页（前 30 页 + 后 30 页）。每页固定 50 行代码。</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" data-label="控制中心">
+        <div class="panel-inner">
+          <div class="panel-title">扫描与导出 / CONTROL CENTER</div>
+          <div class="actions">
+            <button id="btnScan" class="primary tactile block-btn">
+              <span class="icon">■</span> 扫描系统项目 / SCAN_SYSTEM
+            </button>
+            <div class="export-grid">
+              <button id="btnExportDocx" class="tactile">导出 DOCX</button>
+              <button id="btnExportPdf" class="tactile">导出 PDF</button>
+              <button id="btnExportBoth" class="tactile record">全量批量导出</button>
+            </div>
+          </div>
+
+          <div class="stats-display">
+            <div class="stat-box">
+              <label>文件总数</label>
+              <span id="statFiles" class="value">0000</span>
+            </div>
+            <div class="stat-box">
+              <label>有效代码</label>
+              <span id="statLines" class="value">000000</span>
+            </div>
+            <div class="stat-box">
+              <label>总页数</label>
+              <span id="statPages" class="value">000</span>
+            </div>
+            <div class="stat-box accent">
+              <label>导出页</label>
+              <span id="statExport" class="value">000</span>
+            </div>
+            <div class="stat-box accent">
+              <label>导出行</label>
+              <span id="statExportLines" class="value">0000</span>
+            </div>
+          </div>
+
+          <div class="terminal-container">
+            <div class="terminal-header">系统日志 / SYSTEM_LOG</div>
+            <div class="status" id="status">准备就绪...</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <div class="footer-info">NEO-CODER 系统版本 V1.0 // (C) 2026</div>
+      <div class="connection-status">作者：侯小侯 B站：<a href="#" data-url="https://space.bilibili.com/3099272"
+          class="external-link">点击访问频道</a></div>
+    </footer>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+
+</html>
