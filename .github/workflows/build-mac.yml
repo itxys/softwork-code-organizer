@@ -23,8 +23,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build macOS dmg
-        run: npx electron-builder --mac dmg --publish=never
+      - name: Build macOS dmg (arm64 & x64)
+        run: npx electron-builder --mac dmg --x64 --arm64 --publish=never
 
       - name: Upload dmg artifact
         uses: actions/upload-artifact@v4
