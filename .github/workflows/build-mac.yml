@@ -24,11 +24,10 @@ jobs:
         run: npm ci
 
       - name: Build macOS dmg
-        run: npx electron-builder --mac dmg
+        run: npx electron-builder --mac dmg --publish=never
 
       - name: Upload dmg artifact
         uses: actions/upload-artifact@v4
         with:
           name: macos-dmg
           path: dist/*.dmg
-

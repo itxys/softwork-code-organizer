@@ -24,11 +24,10 @@ jobs:
         run: npm ci
 
       - name: Build Linux AppImage
-        run: npx electron-builder --linux AppImage
+        run: npx electron-builder --linux AppImage --publish=never
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-appimage
           path: dist/*.AppImage
-
