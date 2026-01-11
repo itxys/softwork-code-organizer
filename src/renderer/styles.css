@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   /* Cassette Futurism Color Palette */
   --bg-color: #1a1b1e;
   --panel-bg: #2d2e32;
@@ -111,6 +111,74 @@ body {
 .light.green.active {
   background: var(--accent-green);
   box-shadow: 0 0 10px var(--accent-green);
+}
+
+/* Author Info Styling */
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.social-link {
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  opacity: 0.7;
+}
+
+.social-link:hover {
+  color: var(--accent-teal);
+  transform: scale(1.1);
+  opacity: 1;
+  text-shadow: var(--glow-teal);
+}
+
+.social-link svg {
+  width: 20px;
+  height: 20px;
+}
+
+#linkBilibili:hover {
+  color: #fb7299; /* Bilibili Pink */
+  filter: drop-shadow(0 0 5px rgba(251, 114, 153, 0.4));
+}
+
+#linkGithub:hover {
+  color: #fff;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4));
+}
+
+.qq-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  user-select: text; /* Allow copying QQ number */
+  transition: border-color 0.3s;
+}
+
+.qq-group:hover {
+  border-color: var(--accent-teal);
+}
+
+.qq-icon {
+  font-weight: bold;
+  color: var(--accent-teal);
+  font-family: 'Orbitron', sans-serif;
+}
+
+.group-num {
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 1px;
 }
 
 .model-tag {

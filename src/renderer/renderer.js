@@ -1,4 +1,4 @@
-﻿const projectPathInput = document.getElementById('projectPath');
+const projectPathInput = document.getElementById('projectPath');
 const outputDirInput = document.getElementById('outputDir');
 const softwareNameInput = document.getElementById('softwareName');
 const softwareVersionInput = document.getElementById('softwareVersion');
@@ -289,9 +289,12 @@ btnExportPdf.addEventListener('click', exportPdf);
 btnExportBoth.addEventListener('click', exportBoth);
 
 // 外部链接跳转处理
-document.querySelector('.external-link').addEventListener('click', (e) => {
+document.getElementById('linkBilibili').addEventListener('click', (e) => {
   e.preventDefault();
-  const url = e.target.getAttribute('data-url');
-  if (url) window.softreg.openExternal(url);
+  window.softreg.openExternal('https://space.bilibili.com/3099272');
 });
 
+document.getElementById('linkGithub').addEventListener('click', (e) => {
+  e.preventDefault();
+  window.softreg.openExternal('https://github.com/itxys/softwork-code-organizer');
+});

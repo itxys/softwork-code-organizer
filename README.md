@@ -1,5 +1,7 @@
 ## 简体中文
 
+> 如果这款 **软著鉴别材料整理器** 对你的软著准备工作有帮助，欢迎在 GitHub 上帮忙点一个 Star，这对持续维护和改进项目是非常大的鼓励。
+
 ### 项目简介
 
 **软著鉴别材料整理器（Softwork Code Organizer）** 是一个桌面工具，用于生成软件著作权登记所需的程序鉴别材料（源程序部分）。  
@@ -161,6 +163,10 @@ npm run dist
 ```
 
 For Linux and macOS builds, it is recommended to use the GitHub Actions workflows defined in this repository (they run on Linux / macOS runners and produce AppImage / dmg artifacts).
+
+### Support
+
+If you find **Softwork Code Organizer (软著鉴别材料整理器)** helpful, please consider starring this repository on GitHub — it really helps motivate ongoing maintenance and improvements.
 
 ---
 
