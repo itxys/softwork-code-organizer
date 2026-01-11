@@ -2,8 +2,18 @@
 
 ### 项目简介
 
-**软著鉴别材料生成器（Softwork Code Organizer）** 是一个桌面工具，用于生成软件著作权登记所需的程序鉴别材料（源程序部分）。  
+**软著鉴别材料整理器（Softwork Code Organizer）** 是一个桌面工具，用于生成软件著作权登记所需的程序鉴别材料（源程序部分）。  
 应用会自动扫描项目代码，按软著常见要求抽取有效代码行，并导出为 **DOCX / PDF** 文档，默认遵循“前 30 页 + 后 30 页、每页 50 行有效代码”的规则。
+
+### 截图预览
+
+软件主界面示例：
+
+![软件主界面示例](./screenshot-app-ui.png)
+
+导出后的软著程序鉴别材料示例（DOCX 规范格式）：
+
+![导出文档示例](./screenshot-export-doc.png)
 
 ### 功能特性
 
@@ -25,6 +35,21 @@
 - 若可用代码行不足 3000 行，会在前 30 页区域循环补足，保证第 3000 行仍为某个文件的结尾行，方便人工核对完整性。
 - PDF 导出依赖本机安装的 Microsoft Word，用于保持行号效果与版面稳定。
 - 当前版本聚焦于“程序鉴别材料”，文档鉴别材料暂未覆盖。
+
+### 使用方法（普通用户）
+
+1. 打开项目 GitHub 仓库的 Releases 页面，下载最新版本的安装包：
+   - Windows 用户下载 `.exe` 文件；
+   - Linux 用户下载 `.AppImage` 文件；
+   - macOS 用户下载对应架构的 `.dmg` 文件（Apple Silicon 选择 arm64，Intel 选择 x64）。
+2. 安装或运行应用后：
+   - 选择需要生成软著材料的项目代码目录；
+   - 填写软件名称与版本号；
+   - 选择导出目录；
+   - 点击“扫描项目”，等待扫描完成；
+   - 根据需要选择导出为 DOCX 或 PDF，并使用导出的文档进行软著申报。
+
+更多截图、细节说明请参考本 README 的其他部分以及发行版说明。
 
 ### 使用方法（开发 / 调试）
 
@@ -54,7 +79,7 @@
 项目使用 **electron-builder** 进行跨平台打包，当前已配置：
 
 - Windows：便携式可执行文件（portable exe）
-- macOS：dmg 安装包（arm64）
+- macOS：dmg 安装包（arm64 与 x64）
 - Linux：AppImage 包
 
 本地打包（Windows 下构建 Windows 版本）：
@@ -71,7 +96,7 @@ Linux / macOS 包推荐通过 GitHub Actions 在远程构建（仓库下已配�
 
 ### Overview
 
-**Softwork Code Organizer** is a desktop tool that helps you generate the *program identification materials* (source code part) required for software copyright registration.
+**Softwork Code Organizer (软著鉴别材料整理器)** is a desktop tool that helps you generate the *program identification materials* (source code part) required for software copyright registration.
 
 It scans your project source code, extracts valid code lines according to common requirements of Chinese copyright offices, and exports them as **DOCX / PDF** documents.  
 By default, it follows the rule of *“first 30 pages + last 30 pages, 50 valid lines per page”*.
