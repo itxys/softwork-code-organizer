@@ -1,7 +1,7 @@
 {
-  "name": "softreg-materials-tool",
-  "version": "0.1.0",
-  "description": "Generate software copyright registration materials (program/document identification)",
+  "name": "softregtool",
+  "version": "1.1.0",
+  "description": "软著代码资料整理器 - 自动生成程序鉴别材料与AI辅助说明书",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
