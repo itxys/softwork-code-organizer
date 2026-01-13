@@ -1,6 +1,6 @@
 {
   "name": "softregtool",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "软著代码资料整理器 - 自动生成程序鉴别材料与AI辅助说明书",
   "main": "src/main.js",
   "scripts": {
@@ -29,20 +29,25 @@
       "build/icon.icns"
     ],
     "asar": true,
-    "directories": {
-      "buildResources": "build"
-    },
+    "icon": "build/icon.ico",
     "win": {
       "target": [
         "nsis"
       ],
       "signAndEditExecutable": false,
-      "icon": "build/icon.ico"
+      "icon": "build/icon.ico",
+      "artifactName": "${productName}_Setup_${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "perMachine": false
+      "perMachine": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "软著鉴别材料生成器"
     },
     "mac": {
       "identity": null,

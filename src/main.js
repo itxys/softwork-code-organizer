@@ -17,11 +17,15 @@ let mainWindow;
 let lastScan = null;
 
 function getWindowIcon() {
+  // 打包后，build 目录被包含在 resources/app/build 中
+  // __dirname 是 resources/app/src
   const baseDir = path.join(__dirname, '..', 'build');
   if (process.platform === 'win32') {
-    return path.join(baseDir, 'icon.ico');
+    const iconPath = path.join(baseDir, 'icon.ico');
+    return fs.existsSync(iconPath) ? iconPath : undefined;
   }
-  return path.join(baseDir, 'icon.png');
+  const pngPath = path.join(baseDir, 'icon.png');
+  return fs.existsSync(pngPath) ? pngPath : undefined;
 }
 
 /**
