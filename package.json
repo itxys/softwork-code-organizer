@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "docx": "^8.5.0",
-    "electron-store": "^8.2.0"
+    "electron-store": "^8.2.0",
+    "electron-updater": "^6.3.0"
   },
   "build": {
     "appId": "com.houxiaohou.softregtool",
@@ -32,15 +33,27 @@
     },
     "win": {
       "target": [
-        "portable"
+        "nsis"
       ],
       "signAndEditExecutable": false,
       "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false
     },
     "mac": {
       "target": [
         {
           "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
           "arch": [
             "x64",
             "arm64"
@@ -54,6 +67,11 @@
         "AppImage"
       ],
       "icon": "build/icon.png"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ]
   }
 }

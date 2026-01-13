@@ -34,9 +34,20 @@
   <!-- AI Config Modal -->
   <div class="modal hidden" id="aiConfigModal">
     <div class="modal-backdrop"></div>
+    <div id="aiConfigToast" class="modal-toast">
+      <span class="toast-title" id="aiToastTitle">通知 / NOTIFY</span>
+      <span class="toast-msg" id="aiToastMsg">内容 / MESSAGE</span>
+    </div>
     <div class="modal-content panel">
       <div class="panel-inner">
-        <div class="panel-title">AI 配置 / AI CONFIG</div>
+        <div class="panel-title ai-config-header">
+          <span>AI 配置 / AI CONFIG</span>
+          <div class="status-indicator-wrapper">
+            <div id="aiConnectionStatus" class="status-dot-outer">
+              <div class="status-dot-inner"></div>
+            </div>
+          </div>
+        </div>
         <div class="form-row">
           <label>服务商预设 <span class="en">Provider Preset</span></label>
           <select id="aiProviderPreset"></select>
@@ -58,6 +69,7 @@
           <input id="aiModel" type="text" placeholder="gpt-3.5-turbo" />
         </div>
         <div class="modal-actions">
+          <button id="btnTestAiConnection" class="tactile blue-btn">测试连接 / TEST</button>
           <button id="btnSaveAiConfig" class="primary tactile">保存配置 / SAVE</button>
           <button id="btnCloseAiConfig" class="tactile">关闭 / CLOSE</button>
         </div>
@@ -111,7 +123,12 @@
         </div>
       </div>
       <div class="title-group">
-        <h1 class="title">软著代码资料整理器</h1>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+          <h1 class="title">软著代码资料整理器</h1>
+          <a href="#" id="linkCopyright" class="copyright-link" title="前往中国版权保护中心官网">
+            中国版权保护中心官方连接 >>
+          </a>
+        </div>
         <div class="subtitle">自动化技术文档生成系统 // 内部版本: 2026.01</div>
       </div>
     </header>
@@ -177,6 +194,10 @@
             <button id="btnAiUploadScreenshots" class="tactile block-btn" style="margin-bottom: 10px;">
               上传截图（可多选） / UPLOAD SHOTS
             </button>
+            <div class="hint" style="margin-bottom: 15px;">
+              提示：上传软件运行截图，AI 将根据截图自动识别功能并生成《用户手册》。 <br/>
+              <span style="font-size: 9px; opacity: 0.8;">HINT: UPLOAD SCREENSHOTS, AI WILL AUTO-GENERATE THE USER MANUAL BASED ON THEM.</span>
+            </div>
             <div id="aiScreenshotList" class="screenshot-list" style="margin-bottom: 15px;"></div>
             <div class="stats-display" style="margin-top: 0; margin-bottom: 10px;">
               <div class="stat-box">
@@ -215,8 +236,8 @@
                 <button id="btnAiManual" class="tactile ai-btn block-btn" style="flex: 1;">
                   <span class="icon">★</span> AI 生成说明书 / AI_MANUAL_GEN
                 </button>
-                <button id="btnAiConfig" class="icon-btn tactile" style="width: 50px; justify-content: center;" title="AI 设置">
-                  ⚙️
+                <button id="btnAiConfig" class="tactile blue-btn" style="width: auto; padding: 0 12px; font-size: 11px; white-space: nowrap;" title="AI 配置">
+                  AI配置
                 </button>
                </div>
               <div class="export-grid" style="margin-top: 10px;">

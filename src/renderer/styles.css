@@ -208,6 +208,25 @@ body {
   margin-top: 5px;
 }
 
+.copyright-link {
+  font-size: 12px;
+  color: var(--accent-amber);
+  text-decoration: none;
+  font-family: 'Share Tech Mono', monospace;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  opacity: 0.8;
+}
+
+.copyright-link:hover {
+  opacity: 1;
+  color: var(--accent-teal);
+  border: 1px solid var(--accent-teal);
+  background: rgba(0, 212, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+}
+
 /* Panel Styling */
 .panel {
   margin-bottom: 25px;
@@ -888,8 +907,170 @@ textarea#aiResultText:focus {
 
 /* AI Button Specific */
 .ai-btn:hover {
-  background: rgba(50, 150, 255, 0.2) !important;
-  box-shadow: 0 0 15px rgba(50, 150, 255, 0.4) !important;
+  border-color: var(--accent-teal);
+  color: var(--accent-teal);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+}
+
+/* AI Connection Status Indicator */
+.ai-config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px !important;
+}
+
+.status-indicator-wrapper {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-dot-outer {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.status-dot-inner {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #fff; /* Default white */
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+/* Success State */
+.status-dot-outer.success {
+  border-color: var(--accent-green);
+  box-shadow: inset 0 0 10px rgba(62, 255, 139, 0.2);
+}
+
+.status-dot-outer.success .status-dot-inner {
+  background-color: var(--accent-green);
+  box-shadow: 0 0 10px var(--accent-green), 0 0 20px var(--accent-green);
+  animation: pulse-green 1.5s infinite;
+}
+
+/* Error State */
+.status-dot-outer.error {
+  border-color: var(--accent-red);
+}
+
+.status-dot-outer.error .status-dot-inner {
+  background-color: var(--accent-red);
+  box-shadow: 0 0 10px var(--accent-red);
+}
+
+/* Test Result Text */
+.test-result-text {
+  font-size: 11px;
+  margin-bottom: 15px;
+  min-height: 16px;
+  text-align: center;
+  font-family: 'Share Tech Mono', monospace;
+  transition: all 0.3s ease;
+}
+
+.test-result-text.success {
+  color: var(--accent-green);
+}
+
+.test-result-text.error {
+  color: var(--accent-red);
+}
+
+/* Modal Action Layout Fix */
+.ai-config-actions {
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 15px;
+  margin-top: 30px;
+  padding: 0 5px;
+}
+
+.ai-config-actions button {
+  flex: 1;
+  margin: 0 !important;
+  padding: 12px 0 !important;
+  font-size: 13px !important;
+  white-space: nowrap;
+  letter-spacing: 0;
+  min-width: 0; /* Allow buttons to shrink if needed */
+}
+
+/* Toast Notification inside Modal */
+.modal-toast {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid var(--accent-teal);
+  padding: 20px 30px;
+  z-index: 6000;
+  color: #fff;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 1), 0 0 15px var(--accent-teal);
+  min-width: 260px;
+}
+
+.modal-toast.active {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.modal-toast.success {
+  border-color: var(--accent-green);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 1), 0 0 15px var(--accent-green);
+}
+
+.modal-toast.error {
+  border-color: var(--accent-red);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 1), 0 0 15px var(--accent-red);
+}
+
+.toast-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.toast-msg {
+  font-size: 12px;
+  color: var(--text-main);
+}
+
+/* Secondary Blue Button style */
+button.secondary-blue {
+  background: rgba(0, 100, 200, 0.2);
+  border-color: #007bff;
+  color: #007bff;
+}
+
+button.secondary-blue:hover {
+  background: rgba(0, 100, 200, 0.4);
+  box-shadow: 0 0 15px rgba(0, 123, 255, 0.4);
+  color: #fff;
+}
+
+@keyframes pulse-green {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 
@@ -903,6 +1084,29 @@ textarea#aiResultText:focus {
 .tactile.ai-btn:hover {
   background: rgba(255, 157, 0, 0.2) !important;
   box-shadow: 0 0 15px rgba(255, 157, 0, 0.4) !important;
+}
+
+.tactile.blue-btn {
+  background: var(--accent-teal) !important;
+  border-color: transparent !important;
+  border-bottom: 4px solid #008eb0 !important;
+  border-right: 4px solid #008eb0 !important;
+  color: #1a1b1e !important;
+  box-shadow: 3px 3px 0px #000 !important;
+  text-shadow: none !important;
+}
+
+.tactile.blue-btn:hover {
+  background: #33e0ff !important;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #000 !important;
+}
+
+.tactile.blue-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000 !important;
+  border-bottom-width: 2px !important;
+  border-right-width: 2px !important;
 }
 
 .tactile.ai-btn.processing {

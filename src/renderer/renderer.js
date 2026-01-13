@@ -299,6 +299,12 @@ document.getElementById('linkGithub').addEventListener('click', (e) => {
   window.softreg.openExternal('https://github.com/itxys/softwork-code-organizer');
 });
 
+// 中国版权保护中心官网连接
+document.getElementById('linkCopyright').addEventListener('click', (e) => {
+  e.preventDefault();
+  window.softreg.openExternal('https://www.ccopyright.com.cn/');
+});
+
 // ==========================================
 // AI Feature Logic
 // ==========================================
@@ -319,7 +325,31 @@ const aiBaseUrl = document.getElementById('aiBaseUrl');
 const aiApiKey = document.getElementById('aiApiKey');
 const aiModelPreset = document.getElementById('aiModelPreset');
 const aiModel = document.getElementById('aiModel');
+const btnTestAiConnection = document.getElementById('btnTestAiConnection');
+const aiConnectionStatus = document.getElementById('aiConnectionStatus');
+const aiTestResult = document.getElementById('aiTestResult');
+const aiConfigToast = document.getElementById('aiConfigToast');
+const aiToastTitle = document.getElementById('aiToastTitle');
+const aiToastMsg = document.getElementById('aiToastMsg');
 const btnSaveAiConfig = document.getElementById('btnSaveAiConfig');
+
+/**
+ * 在 AI 配置弹窗中显示自定义 Toast 提示
+ * @param {string} title 标题
+ * @param {string} msg 消息内容
+ * @param {string} type 类型: 'success' | 'error' | 'info'
+ */
+function showModalToast(title, msg, type = 'info') {
+  if (!aiConfigToast) return;
+  
+  aiToastTitle.textContent = title;
+  aiToastMsg.textContent = msg;
+  aiConfigToast.className = `modal-toast active ${type}`;
+  
+  setTimeout(() => {
+    aiConfigToast.classList.remove('active');
+  }, 3000);
+}
 const btnCloseAiConfig = document.getElementById('btnCloseAiConfig');
 const btnSaveAiManual = document.getElementById('btnSaveAiManual');
 const btnCloseAiResult = document.getElementById('btnCloseAiResult');
@@ -340,82 +370,85 @@ const AI_PROVIDER_PRESETS = [
     id: 'openai',
     name: 'OpenAI 官方',
     baseUrl: 'https://api.openai.com/v1',
-    models: ['gpt-4o-mini', 'gpt-4o', 'gpt-3.5-turbo']
-  },
-  {
-    id: 'openrouter',
-    name: 'OpenRouter',
-    baseUrl: 'https://openrouter.ai/api/v1',
-    models: [
-      'anthropic/claude-3.5-sonnet',
-      'google/gemini-1.5-pro',
-      'meta-llama/llama-3.1-70b-instruct'
-    ]
+    models: ['gpt-5.2', 'gpt-5.1', 'o3-mini', 'o3-pro', 'gpt-4.1', 'gpt-4o']
   },
   {
     id: 'siliconflow',
     name: '硅基流动（SiliconFlow）',
     baseUrl: 'https://api.siliconflow.cn/v1',
     models: [
-      'deepseek-ai/DeepSeek-V3',
       'deepseek-ai/DeepSeek-R1',
-      'Qwen/Qwen2.5-7B-Instruct'
+      'deepseek-ai/DeepSeek-V3',
+      'Qwen/Qwen2.5-72B-Instruct',
+      'Qwen/Qwen2.5-Coder-32B-Instruct',
+      'TeleAI/TeleChat2'
     ]
   },
   {
     id: 'deepseek',
-    name: 'DeepSeek',
+    name: 'DeepSeek 官方',
     baseUrl: 'https://api.deepseek.com/v1',
-    models: ['deepseek-chat', 'deepseek-reasoner']
+    models: ['deepseek-reasoner', 'deepseek-chat']
   },
   {
-    id: 'moonshot',
-    name: 'Moonshot（Kimi）',
-    baseUrl: 'https://api.moonshot.cn/v1',
-    models: ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k']
-  }
-  ,
+    id: 'openrouter',
+    name: 'OpenRouter',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    models: [
+      'anthropic/claude-4.5-sonnet',
+      'anthropic/claude-4.5-opus',
+      'google/gemini-3-pro',
+      'deepseek/deepseek-r1',
+      'meta-llama/llama-4-70b-instruct'
+    ]
+  },
   {
     id: 'qwen',
-    name: 'Qwen（阿里云 DashScope 兼容模式）',
+    name: '阿里云 DashScope (Qwen)',
     baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-    models: ['qwen-turbo', 'qwen-plus', 'qwen-max']
+    models: ['qwen-max', 'qwen-plus', 'qwen-turbo', 'qwen-long']
   },
   {
     id: 'zhipu',
-    name: 'ZhipuGLM（智谱）',
+    name: '智谱 ZhipuAI (GLM)',
     baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
-    models: ['glm-4-plus', 'glm-4', 'glm-4-air']
+    models: ['glm-4-plus', 'glm-4-air', 'glm-4-flash', 'glm-4-long']
+  },
+  {
+    id: 'moonshot',
+    name: 'Moonshot AI (Kimi)',
+    baseUrl: 'https://api.moonshot.cn/v1',
+    models: ['moonshot-v1-128k', 'moonshot-v1-32k', 'moonshot-v1-8k']
   },
   {
     id: 'minimax',
     name: 'MiniMax',
     baseUrl: 'https://api.minimax.chat/v1',
-    models: ['abab6.5s-chat', 'abab6.5-chat']
+    models: ['abab7-chat-preview', 'abab6.5s-chat', 'abab6.5-chat']
   },
   {
     id: 'doubao',
-    name: 'Doubao / Seed（火山方舟）',
+    name: '字节跳动 Doubao (火山引擎)',
     baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
-    models: ['doubao-seed-1.5', 'doubao-pro-32k', 'doubao-lite-4k']
+    models: ['doubao-pro-32k', 'doubao-lite-32k', 'doubao-pro-128k']
   },
   {
     id: 'modelscope',
-    name: 'ModelScope（魔搭）',
+    name: 'ModelScope (魔搭)',
     baseUrl: 'https://api-inference.modelscope.cn/v1',
     models: ['Qwen/Qwen2.5-72B-Instruct', 'Qwen/Qwen2.5-7B-Instruct']
   },
   {
     id: 'claude',
-    name: 'Claude（通过 OpenRouter）',
-    baseUrl: 'https://openrouter.ai/api/v1',
-    models: ['anthropic/claude-3.5-sonnet', 'anthropic/claude-3.5-haiku']
+    name: 'Claude (Official/Proxy)',
+    baseUrl: 'https://api.anthropic.com/v1',
+    models: ['claude-opus-4-5', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022']
   },
   {
     id: 'gemini',
-    name: 'Google Gemini（兼容接口）',
+    name: 'Google Gemini',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
-    models: ['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash']
+    models: ['gemini-3-pro-preview', 'gemini-3-flash-preview', 'gemini-2.0-flash-exp', 'gemini-1.5-pro', 'gemini-1.5-flash']
   }
 ];
 
@@ -613,12 +646,110 @@ async function loadAiConfig() {
 btnAiConfig.addEventListener('click', async () => {
   initAiPresetControls();
   await loadAiConfig();
+  if (aiTestResult) aiTestResult.textContent = '';
+  if (aiConnectionStatus) aiConnectionStatus.className = 'status-dot-outer';
   aiConfigModal.classList.remove('hidden');
 });
 
 btnCloseAiConfig.addEventListener('click', () => {
   aiConfigModal.classList.add('hidden');
+  if (aiTestResult) aiTestResult.textContent = '';
+  if (aiConnectionStatus) aiConnectionStatus.className = 'status-dot-outer';
 });
+
+if (btnTestAiConnection) {
+  btnTestAiConnection.addEventListener('click', async () => {
+    const baseUrl = aiBaseUrl.value.trim();
+    const apiKey = aiApiKey.value.trim();
+    const model = aiModel.value.trim();
+
+    if (!baseUrl || !apiKey || !model) {
+      if (aiTestResult) {
+        aiTestResult.textContent = '请先填写完整的配置信息';
+        aiTestResult.className = 'test-result-text error';
+      }
+      showModalToast('配置不完整', '请填写 API 地址、密钥和模型名称', 'error');
+      return;
+    }
+
+    // Reset status
+    if (aiConnectionStatus) {
+      aiConnectionStatus.className = 'status-dot-outer';
+      aiConnectionStatus.title = '正在测试连接... / Testing Connection...';
+    }
+    if (aiTestResult) {
+      aiTestResult.textContent = '正在连接服务器...';
+      aiTestResult.className = 'test-result-text';
+    }
+    
+    const originalText = btnTestAiConnection.textContent;
+    btnTestAiConnection.disabled = true;
+    btnTestAiConnection.textContent = '测试中...';
+
+    try {
+      // Determine endpoint. Assuming OpenAI compatible /chat/completions
+      let cleanBaseUrl = baseUrl.replace(/\/+$/, '');
+      const url = `${cleanBaseUrl}/chat/completions`;
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [{ role: 'user', content: 'Hi' }],
+          max_tokens: 1
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        if (aiConnectionStatus) {
+          aiConnectionStatus.classList.add('success');
+          aiConnectionStatus.title = '连接成功 / Connection Successful';
+        }
+        if (aiTestResult) {
+          aiTestResult.textContent = '连接测试成功！接口响应正常。';
+          aiTestResult.className = 'test-result-text success';
+        }
+        showModalToast('测试成功', 'AI 接口连接正常，响应成功！', 'success');
+      } else {
+        const errText = await response.text();
+        console.error('AI Test Error:', response.status, errText);
+        if (aiConnectionStatus) {
+          aiConnectionStatus.classList.add('error');
+          aiConnectionStatus.title = `连接失败 / Connection Failed: ${response.status}`;
+        }
+        if (aiTestResult) {
+          aiTestResult.textContent = `失败: ${response.status} - ${errText.substring(0, 30)}...`;
+          aiTestResult.className = 'test-result-text error';
+        }
+        showModalToast('测试失败', `状态码: ${response.status}\n原因: ${errText.substring(0, 50)}`, 'error');
+      }
+    } catch (error) {
+      console.error('AI Test Exception:', error);
+      if (aiConnectionStatus) {
+        aiConnectionStatus.classList.add('error');
+        aiConnectionStatus.title = `连接错误 / Connection Error`;
+      }
+      if (aiTestResult) {
+        aiTestResult.textContent = `错误: ${error.message}`;
+        aiTestResult.className = 'test-result-text error';
+      }
+      showModalToast('连接错误', error.message, 'error');
+    } finally {
+      btnTestAiConnection.disabled = false;
+      btnTestAiConnection.textContent = originalText;
+    }
+  });
+}
 
 btnSaveAiConfig.addEventListener('click', async () => {
   const config = {
@@ -629,6 +760,8 @@ btnSaveAiConfig.addEventListener('click', async () => {
   config.providerId = aiProviderPreset.value;
   await window.softreg.ai.saveConfig(config);
   aiConfigModal.classList.add('hidden');
+  if (aiTestResult) aiTestResult.textContent = '';
+  if (aiConnectionStatus) aiConnectionStatus.className = 'status-dot-outer';
   setStatus('状态: AI 配置已保存');
 });
 

@@ -9,6 +9,7 @@ const { writeDocx } = require('./shared/exportDocx');
 const { writeManualDocx } = require('./shared/exportManualDocx');
 const Store = require('electron-store');
 const { pathToFileURL } = require('url');
+const { autoUpdater } = require('electron-updater');
 
 const store = new Store();
 
@@ -21,6 +22,57 @@ function getWindowIcon() {
     return path.join(baseDir, 'icon.ico');
   }
   return path.join(baseDir, 'icon.png');
+}
+
+/**
+ * 初始化自动更新（仅打包后生效）：从 GitHub Releases 检查、下载并提示安装。
+ */
+function setupAutoUpdate() {
+  if (!app.isPackaged) return;
+
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  autoUpdater.on('error', async (error) => {
+    try {
+      await dialog.showMessageBox(mainWindow, {
+        type: 'error',
+        title: '更新失败',
+        message: '检查更新时发生错误',
+        detail: String(error?.message || error || '')
+      });
+    } catch {}
+  });
+
+  autoUpdater.on('update-available', async () => {
+    try {
+      await dialog.showMessageBox(mainWindow, {
+        type: 'info',
+        title: '发现新版本',
+        message: '发现新版本，正在后台下载…',
+        buttons: ['知道了'],
+        defaultId: 0
+      });
+    } catch {}
+  });
+
+  autoUpdater.on('update-downloaded', async () => {
+    try {
+      const result = await dialog.showMessageBox(mainWindow, {
+        type: 'info',
+        title: '更新已下载',
+        message: '新版本已下载完成，是否立即重启并安装？',
+        buttons: ['立即重启安装', '稍后'],
+        defaultId: 0,
+        cancelId: 1
+      });
+      if (result.response === 0) {
+        autoUpdater.quitAndInstall();
+      }
+    } catch {}
+  });
+
+  autoUpdater.checkForUpdates().catch(() => {});
 }
 
 function createWindow() {
@@ -41,6 +93,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
   createWindow();
+  setupAutoUpdate();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
