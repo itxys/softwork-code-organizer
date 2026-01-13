@@ -5,7 +5,7 @@
   <p>一款自动生成软件著作权登记材料的桌面级工具，支持 AI 辅助生成说明书</p>
 
   <div>
-    <img src="https://img.shields.io/badge/Version-1.1.0-00d4ff?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/Version-1.1.1-00d4ff?style=for-the-badge" alt="Version">
     <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-ff9d00?style=for-the-badge" alt="Platform">
     <img src="https://img.shields.io/badge/License-MIT-3eff8b?style=for-the-badge" alt="License">
   </div>
