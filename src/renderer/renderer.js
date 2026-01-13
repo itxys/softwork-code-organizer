@@ -298,3 +298,530 @@ document.getElementById('linkGithub').addEventListener('click', (e) => {
   e.preventDefault();
   window.softreg.openExternal('https://github.com/itxys/softwork-code-organizer');
 });
+
+// ==========================================
+// AI Feature Logic
+// ==========================================
+
+const btnAiConfig = document.getElementById('btnAiConfig');
+const btnAiManual = document.getElementById('btnAiManual');
+const btnAiUploadScreenshots = document.getElementById('btnAiUploadScreenshots');
+const aiScreenshotList = document.getElementById('aiScreenshotList');
+const btnExportAiDocx = document.getElementById('btnExportAiDocx');
+const btnExportAiPdf = document.getElementById('btnExportAiPdf');
+const btnExportAiBoth = document.getElementById('btnExportAiBoth');
+const btnOpenOutputDir = document.getElementById('btnOpenOutputDir');
+const btnOpenOutputDirAi = document.getElementById('btnOpenOutputDirAi');
+const aiConfigModal = document.getElementById('aiConfigModal');
+const aiResultModal = document.getElementById('aiResultModal');
+const aiProviderPreset = document.getElementById('aiProviderPreset');
+const aiBaseUrl = document.getElementById('aiBaseUrl');
+const aiApiKey = document.getElementById('aiApiKey');
+const aiModelPreset = document.getElementById('aiModelPreset');
+const aiModel = document.getElementById('aiModel');
+const btnSaveAiConfig = document.getElementById('btnSaveAiConfig');
+const btnCloseAiConfig = document.getElementById('btnCloseAiConfig');
+const btnSaveAiManual = document.getElementById('btnSaveAiManual');
+const btnCloseAiResult = document.getElementById('btnCloseAiResult');
+const aiResultText = document.getElementById('aiResultText');
+
+let aiManualMarkdown = '';
+let aiScreenshots = [];
+let aiGeneratingManual = false;
+
+const AI_PROVIDER_PRESETS = [
+  {
+    id: 'custom',
+    name: '自定义（兼容 OpenAI 接口）',
+    baseUrl: '',
+    models: []
+  },
+  {
+    id: 'openai',
+    name: 'OpenAI 官方',
+    baseUrl: 'https://api.openai.com/v1',
+    models: ['gpt-4o-mini', 'gpt-4o', 'gpt-3.5-turbo']
+  },
+  {
+    id: 'openrouter',
+    name: 'OpenRouter',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    models: [
+      'anthropic/claude-3.5-sonnet',
+      'google/gemini-1.5-pro',
+      'meta-llama/llama-3.1-70b-instruct'
+    ]
+  },
+  {
+    id: 'siliconflow',
+    name: '硅基流动（SiliconFlow）',
+    baseUrl: 'https://api.siliconflow.cn/v1',
+    models: [
+      'deepseek-ai/DeepSeek-V3',
+      'deepseek-ai/DeepSeek-R1',
+      'Qwen/Qwen2.5-7B-Instruct'
+    ]
+  },
+  {
+    id: 'deepseek',
+    name: 'DeepSeek',
+    baseUrl: 'https://api.deepseek.com/v1',
+    models: ['deepseek-chat', 'deepseek-reasoner']
+  },
+  {
+    id: 'moonshot',
+    name: 'Moonshot（Kimi）',
+    baseUrl: 'https://api.moonshot.cn/v1',
+    models: ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k']
+  }
+  ,
+  {
+    id: 'qwen',
+    name: 'Qwen（阿里云 DashScope 兼容模式）',
+    baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    models: ['qwen-turbo', 'qwen-plus', 'qwen-max']
+  },
+  {
+    id: 'zhipu',
+    name: 'ZhipuGLM（智谱）',
+    baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
+    models: ['glm-4-plus', 'glm-4', 'glm-4-air']
+  },
+  {
+    id: 'minimax',
+    name: 'MiniMax',
+    baseUrl: 'https://api.minimax.chat/v1',
+    models: ['abab6.5s-chat', 'abab6.5-chat']
+  },
+  {
+    id: 'doubao',
+    name: 'Doubao / Seed（火山方舟）',
+    baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
+    models: ['doubao-seed-1.5', 'doubao-pro-32k', 'doubao-lite-4k']
+  },
+  {
+    id: 'modelscope',
+    name: 'ModelScope（魔搭）',
+    baseUrl: 'https://api-inference.modelscope.cn/v1',
+    models: ['Qwen/Qwen2.5-72B-Instruct', 'Qwen/Qwen2.5-7B-Instruct']
+  },
+  {
+    id: 'claude',
+    name: 'Claude（通过 OpenRouter）',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    models: ['anthropic/claude-3.5-sonnet', 'anthropic/claude-3.5-haiku']
+  },
+  {
+    id: 'gemini',
+    name: 'Google Gemini（兼容接口）',
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    models: ['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash']
+  }
+];
+
+let aiPresetsInitialized = false;
+
+function getProviderPresetById(id) {
+  return AI_PROVIDER_PRESETS.find(p => p.id === id) || AI_PROVIDER_PRESETS[0];
+}
+
+function findProviderPresetIdByBaseUrl(baseUrl) {
+  const normalized = String(baseUrl || '').trim().replace(/\/$/, '');
+  const match = AI_PROVIDER_PRESETS.find(p => p.baseUrl && p.baseUrl.replace(/\/$/, '') === normalized);
+  return match ? match.id : 'custom';
+}
+
+function setSelectOptions(selectEl, options) {
+  selectEl.innerHTML = '';
+  for (const opt of options) {
+    const optionEl = document.createElement('option');
+    optionEl.value = opt.value;
+    optionEl.textContent = opt.label;
+    selectEl.appendChild(optionEl);
+  }
+}
+
+function populateProviderPresetOptions() {
+  setSelectOptions(
+    aiProviderPreset,
+    AI_PROVIDER_PRESETS.map(preset => ({
+      value: preset.id,
+      label: preset.name
+    }))
+  );
+}
+
+function populateModelPresetOptions(providerId) {
+  const provider = getProviderPresetById(providerId);
+  const modelOptions = [{ value: 'custom', label: '自定义' }].concat(
+    provider.models.map(m => ({ value: m, label: m }))
+  );
+  setSelectOptions(aiModelPreset, modelOptions);
+}
+
+function syncProviderPresetFromBaseUrl() {
+  const providerId = findProviderPresetIdByBaseUrl(aiBaseUrl.value);
+  if (aiProviderPreset.value !== providerId) {
+    aiProviderPreset.value = providerId;
+    populateModelPresetOptions(providerId);
+    syncModelPresetFromModelName();
+  }
+}
+
+function syncModelPresetFromModelName() {
+  const modelName = String(aiModel.value || '').trim();
+  const optionExists = Array.from(aiModelPreset.options).some(o => o.value === modelName);
+  aiModelPreset.value = optionExists ? modelName : 'custom';
+}
+
+function applyProviderPreset(providerId) {
+  const provider = getProviderPresetById(providerId);
+  populateModelPresetOptions(providerId);
+
+  if (provider.baseUrl) {
+    aiBaseUrl.value = provider.baseUrl;
+  }
+
+  if (!String(aiModel.value || '').trim() && provider.models.length > 0) {
+    aiModel.value = provider.models[0];
+  }
+
+  syncModelPresetFromModelName();
+}
+
+function initAiPresetControls() {
+  if (aiPresetsInitialized) return;
+  aiPresetsInitialized = true;
+
+  populateProviderPresetOptions();
+  populateModelPresetOptions('custom');
+
+  aiProviderPreset.addEventListener('change', () => {
+    applyProviderPreset(aiProviderPreset.value);
+  });
+
+  aiModelPreset.addEventListener('change', () => {
+    if (aiModelPreset.value === 'custom') return;
+    aiModel.value = aiModelPreset.value;
+  });
+
+  aiBaseUrl.addEventListener('input', () => {
+    syncProviderPresetFromBaseUrl();
+  });
+
+  aiModel.addEventListener('input', () => {
+    syncModelPresetFromModelName();
+  });
+}
+
+function renderAiScreenshotList() {
+  if (!aiScreenshotList) return;
+  aiScreenshotList.innerHTML = '';
+  if (!aiScreenshots.length) return;
+
+  let dragIndex = null;
+
+  aiScreenshots.forEach((item, index) => {
+    const row = document.createElement('div');
+    row.className = 'screenshot-item';
+    row.draggable = true;
+    row.dataset.index = String(index);
+
+    const img = document.createElement('img');
+    img.className = 'screenshot-thumb';
+    img.alt = item.name || `截图 ${index + 1}`;
+    img.src = item.url;
+
+    const name = document.createElement('div');
+    name.className = 'screenshot-name';
+    name.textContent = `${index + 1}. ${item.name || item.path || ''}`;
+
+    const noteInput = document.createElement('input');
+    noteInput.type = 'text';
+    noteInput.className = 'screenshot-note';
+    noteInput.placeholder = '备注：例如 首页截图 / 目录截图';
+    noteInput.value = String(item.note || '');
+    noteInput.draggable = false;
+
+    noteInput.addEventListener('input', () => {
+      const idx = Number(row.dataset.index);
+      if (Number.isNaN(idx) || !aiScreenshots[idx]) return;
+      aiScreenshots[idx].note = noteInput.value;
+    });
+
+    row.appendChild(img);
+    row.appendChild(name);
+    row.appendChild(noteInput);
+
+    row.addEventListener('dragstart', (e) => {
+      if (e.target && e.target.closest && e.target.closest('input')) {
+        e.preventDefault();
+        return;
+      }
+      dragIndex = index;
+      row.classList.add('dragging');
+      try {
+        e.dataTransfer.setData('text/plain', String(index));
+        e.dataTransfer.effectAllowed = 'move';
+      } catch (_err) {}
+    });
+
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+    });
+
+    row.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      try {
+        e.dataTransfer.dropEffect = 'move';
+      } catch (_err) {}
+    });
+
+    row.addEventListener('drop', (e) => {
+      e.preventDefault();
+      let fromIndex = dragIndex;
+      const toIndex = Number(row.dataset.index);
+      try {
+        const raw = e.dataTransfer.getData('text/plain');
+        if (raw !== '') fromIndex = Number(raw);
+      } catch (_err) {}
+
+      if (Number.isNaN(fromIndex) || Number.isNaN(toIndex) || fromIndex === toIndex) return;
+      const next = aiScreenshots.slice();
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      aiScreenshots = next;
+      renderAiScreenshotList();
+    });
+
+    aiScreenshotList.appendChild(row);
+  });
+}
+
+async function loadAiConfig() {
+  initAiPresetControls();
+  const config = await window.softreg.ai.getConfig();
+  aiBaseUrl.value = config.baseUrl;
+  aiApiKey.value = config.apiKey;
+  aiModel.value = config.model;
+  const providerId = config.providerId || findProviderPresetIdByBaseUrl(config.baseUrl);
+  aiProviderPreset.value = providerId;
+  populateModelPresetOptions(providerId);
+  syncModelPresetFromModelName();
+}
+
+btnAiConfig.addEventListener('click', async () => {
+  initAiPresetControls();
+  await loadAiConfig();
+  aiConfigModal.classList.remove('hidden');
+});
+
+btnCloseAiConfig.addEventListener('click', () => {
+  aiConfigModal.classList.add('hidden');
+});
+
+btnSaveAiConfig.addEventListener('click', async () => {
+  const config = {
+    baseUrl: aiBaseUrl.value.trim(),
+    apiKey: aiApiKey.value.trim(),
+    model: aiModel.value.trim()
+  };
+  config.providerId = aiProviderPreset.value;
+  await window.softreg.ai.saveConfig(config);
+  aiConfigModal.classList.add('hidden');
+  setStatus('状态: AI 配置已保存');
+});
+
+async function generateAiManualMarkdown() {
+  if (aiGeneratingManual) return '';
+  if (!projectPathInput.value) {
+    setStatus('错误: 请先选择项目目录');
+    updateLights('error');
+    return '';
+  }
+  
+  const config = await window.softreg.ai.getConfig();
+  if (!config.apiKey) {
+    setStatus('错误: 未配置 AI API KEY');
+    updateLights('error');
+    await loadAiConfig();
+    aiConfigModal.classList.remove('hidden');
+    return '';
+  }
+  
+  try {
+    aiGeneratingManual = true;
+    setStatus('状态: AI 正在分析项目并撰写说明书...');
+    updateLights('busy');
+    startButtonEffect(btnAiManual);
+    
+    aiResultText.value = '正在分析项目结构...\n正在读取关键文件...\n正在调用 AI 生成（可能需要 30-60 秒）...\n\n请稍候...';
+    aiResultModal.classList.remove('hidden');
+    
+    const manualMarkdown = await window.softreg.ai.generateManual(
+      projectPathInput.value,
+      config,
+      aiScreenshots.map(s => ({
+        path: s.path,
+        name: s.name,
+        note: String(s.note || '').trim()
+      }))
+    );
+    aiManualMarkdown = manualMarkdown;
+    aiResultText.value = manualMarkdown;
+    
+    setStatus('状态: 说明书生成完成');
+    updateLights('success');
+    return manualMarkdown;
+  } catch (err) {
+    setStatus(`错误: 生成失败 // ${String(err.message || err).toUpperCase()}`);
+    updateLights('error');
+    aiResultText.value = `生成失败:\n${String(err.message || err)}`;
+    return '';
+  } finally {
+    aiGeneratingManual = false;
+    stopButtonEffect(btnAiManual);
+  }
+}
+
+btnAiManual.addEventListener('click', async () => {
+  await generateAiManualMarkdown();
+});
+
+btnSaveAiManual.addEventListener('click', async () => {
+  await generateAiManualMarkdown();
+});
+
+btnCloseAiResult.addEventListener('click', () => {
+  aiManualMarkdown = aiResultText.value;
+  aiResultModal.classList.add('hidden');
+  setStatus('状态: 已保存生成结果');
+});
+
+async function ensureAiManualReady() {
+  if (String(aiManualMarkdown || '').trim()) return aiManualMarkdown;
+  return await generateAiManualMarkdown();
+}
+
+async function exportAiDocx() {
+  if (!validateInputs()) return;
+  const markdown = await ensureAiManualReady();
+  if (!String(markdown || '').trim()) return;
+
+  try {
+    setStatus('状态: 正在导出说明书 DOCX...');
+    updateLights('busy');
+    startButtonEffect(btnExportAiDocx);
+    await window.softreg.ensureOutputDir(outputDirInput.value);
+
+    const headerText = buildHeaderText();
+    const fileName = `${headerText || '项目'}_软件说明书.docx`;
+    await window.softreg.ai.exportManualDocx({
+      outputDir: outputDirInput.value,
+      fileName,
+      markdown,
+      screenshots: aiScreenshots.map(s => ({
+        path: s.path,
+        name: s.name,
+        note: String(s.note || '').trim()
+      })),
+      softwareName: softwareNameInput.value.trim(),
+      softwareVersion: softwareVersionInput.value.trim(),
+      headerText
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 800));
+    setStatus('成功: 说明书 DOCX 已保存至磁盘');
+    updateLights('success');
+  } catch (err) {
+    setStatus(`错误: 说明书 DOCX 导出失败 // ${String(err.message || err).toUpperCase()}`);
+    updateLights('error');
+  } finally {
+    stopButtonEffect(btnExportAiDocx);
+  }
+}
+
+async function exportAiPdf() {
+  if (!validateInputs()) return;
+  const markdown = await ensureAiManualReady();
+  if (!String(markdown || '').trim()) return;
+
+  try {
+    setStatus('状态: 正在导出说明书 PDF...');
+    updateLights('busy');
+    startButtonEffect(btnExportAiPdf);
+    await window.softreg.ensureOutputDir(outputDirInput.value);
+
+    const headerText = buildHeaderText();
+    const fileName = `${headerText || '项目'}_软件说明书.pdf`;
+    await window.softreg.ai.exportManualPdf({
+      outputDir: outputDirInput.value,
+      fileName,
+      markdown,
+      screenshots: aiScreenshots.map(s => ({
+        path: s.path,
+        name: s.name,
+        note: String(s.note || '').trim()
+      })),
+      softwareName: softwareNameInput.value.trim(),
+      softwareVersion: softwareVersionInput.value.trim(),
+      headerText
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 800));
+    setStatus('成功: 说明书 PDF 已保存至磁盘');
+    updateLights('success');
+  } catch (err) {
+    setStatus(`错误: 说明书 PDF 导出失败 // ${String(err.message || err).toUpperCase()}`);
+    updateLights('error');
+  } finally {
+    stopButtonEffect(btnExportAiPdf);
+  }
+}
+
+async function exportAiBoth() {
+  if (!validateInputs()) return;
+  await exportAiDocx();
+  await exportAiPdf();
+}
+
+btnExportAiDocx.addEventListener('click', exportAiDocx);
+btnExportAiPdf.addEventListener('click', exportAiPdf);
+btnExportAiBoth.addEventListener('click', exportAiBoth);
+
+function openSelectedOutputDir() {
+  const out = String(outputDirInput.value || '').trim();
+  if (!out) {
+    setStatus('错误: 缺失输出路径');
+    updateLights('error');
+    return;
+  }
+  window.softreg.openOutputDir(out);
+}
+
+btnOpenOutputDir.addEventListener('click', openSelectedOutputDir);
+btnOpenOutputDirAi.addEventListener('click', openSelectedOutputDir);
+
+btnAiUploadScreenshots.addEventListener('click', async () => {
+  const items = await window.softreg.selectAiScreenshots();
+  if (!Array.isArray(items) || items.length === 0) return;
+
+  const existing = new Set(aiScreenshots.map(s => s.path));
+  const merged = aiScreenshots.slice();
+  for (const it of items) {
+    if (!it || !it.path || existing.has(it.path)) continue;
+    merged.push({ ...it, note: '' });
+    existing.add(it.path);
+  }
+  aiScreenshots = merged;
+  renderAiScreenshotList();
+});
+
+
+// Modal Initialization Logic
+// Ensure modals are hidden on load
+window.addEventListener('DOMContentLoaded', () => {
+  aiConfigModal.classList.add('hidden');
+  aiResultModal.classList.add('hidden');
+  renderAiScreenshotList();
+});

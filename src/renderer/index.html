@@ -4,12 +4,24 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- CSP removed to allow inline scripts/styles for local dev -->
   <title>软著材料生成器 | UNIT-01</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Inline styles for modal control to ensure higher priority */
+    .modal {
+      display: flex !important;
+      visibility: visible !important;
+    }
+    .modal.hidden {
+      display: none !important;
+      visibility: hidden !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -18,6 +30,56 @@
     <div class="scan-beam"></div>
     <div class="scan-text">SCANNING_DATA_STREAM...</div>
   </div>
+
+  <!-- AI Config Modal -->
+  <div class="modal hidden" id="aiConfigModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content panel">
+      <div class="panel-inner">
+        <div class="panel-title">AI 配置 / AI CONFIG</div>
+        <div class="form-row">
+          <label>服务商预设 <span class="en">Provider Preset</span></label>
+          <select id="aiProviderPreset"></select>
+        </div>
+        <div class="form-row">
+          <label>API 地址 <span class="en">Base URL</span></label>
+          <input id="aiBaseUrl" type="text" placeholder="https://api.openai.com/v1" />
+        </div>
+        <div class="form-row">
+          <label>API Key <span class="en">鉴权密钥</span></label>
+          <input id="aiApiKey" type="password" placeholder="sk-..." />
+        </div>
+        <div class="form-row">
+          <label>模型预设 <span class="en">Model Preset</span></label>
+          <select id="aiModelPreset"></select>
+        </div>
+        <div class="form-row">
+          <label>模型名称 <span class="en">Model Name</span></label>
+          <input id="aiModel" type="text" placeholder="gpt-3.5-turbo" />
+        </div>
+        <div class="modal-actions">
+          <button id="btnSaveAiConfig" class="primary tactile">保存配置 / SAVE</button>
+          <button id="btnCloseAiConfig" class="tactile">关闭 / CLOSE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Result Modal -->
+  <div class="modal hidden" id="aiResultModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content panel large-modal">
+      <div class="panel-inner">
+        <div class="panel-title">生成结果 / GENERATED RESULT</div>
+        <textarea id="aiResultText" spellcheck="false" placeholder="等待生成..."></textarea>
+        <div class="modal-actions">
+          <button id="btnSaveAiManual" class="primary tactile">重新生成 / REGENERATE</button>
+          <button id="btnCloseAiResult" class="tactile">保存并返回 / SAVE & BACK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="app">
     <header class="app-header">
       <div class="header-top">
@@ -26,6 +88,7 @@
           <span class="light amber"></span>
           <span class="light green"></span>
         </div>
+        
         <div class="author-info">
           <a href="#" class="social-link" id="linkBilibili" title="B站: 程序员小山与bug">
             <!-- Bilibili Icon -->
@@ -42,7 +105,7 @@
             </svg>
           </a>
           <div class="qq-group">
-            <span class="qq-icon">QQ</span>
+            <span class="qq-icon">QQ群</span>
             <span class="group-num">668926567</span>
           </div>
         </div>
@@ -67,7 +130,7 @@
           <div class="form-grid">
             <div class="form-row">
               <label>软件名称 <span class="en">应用标识</span></label>
-              <input id="softwareName" type="text" placeholder="例如：煮蛋计时器" />
+              <input id="softwareName" type="text" placeholder="例如：超级妙音鸟" />
             </div>
             <div class="form-row">
               <label>版本号 <span class="en">版本标识</span></label>
@@ -111,36 +174,57 @@
         <div class="panel-inner">
           <div class="panel-title">扫描与导出 / CONTROL CENTER</div>
           <div class="actions">
+            <button id="btnAiUploadScreenshots" class="tactile block-btn" style="margin-bottom: 10px;">
+              上传截图（可多选） / UPLOAD SHOTS
+            </button>
+            <div id="aiScreenshotList" class="screenshot-list" style="margin-bottom: 15px;"></div>
+            <div class="stats-display" style="margin-top: 0; margin-bottom: 10px;">
+              <div class="stat-box">
+                <label>文件总数</label>
+                <span id="statFiles" class="value">0000</span>
+              </div>
+              <div class="stat-box">
+                <label>有效代码</label>
+                <span id="statLines" class="value">000000</span>
+              </div>
+              <div class="stat-box">
+                <label>总页数</label>
+                <span id="statPages" class="value">000</span>
+              </div>
+              <div class="stat-box accent">
+                <label>导出页</label>
+                <span id="statExport" class="value">000</span>
+              </div>
+              <div class="stat-box accent">
+                <label>导出行</label>
+                <span id="statExportLines" class="value">0000</span>
+              </div>
+            </div>
             <button id="btnScan" class="primary tactile block-btn">
               <span class="icon">■</span> 扫描系统项目 / SCAN_SYSTEM
             </button>
             <div class="export-grid">
               <button id="btnExportDocx" class="tactile">导出 DOCX</button>
               <button id="btnExportPdf" class="tactile">导出 PDF</button>
-              <button id="btnExportBoth" class="tactile record">全量批量导出</button>
+              <button id="btnExportBoth" class="tactile record">批量导出</button>
+              <button id="btnOpenOutputDir" class="tactile">打开文件夹</button>
             </div>
-          </div>
-
-          <div class="stats-display">
-            <div class="stat-box">
-              <label>文件总数</label>
-              <span id="statFiles" class="value">0000</span>
-            </div>
-            <div class="stat-box">
-              <label>有效代码</label>
-              <span id="statLines" class="value">000000</span>
-            </div>
-            <div class="stat-box">
-              <label>总页数</label>
-              <span id="statPages" class="value">000</span>
-            </div>
-            <div class="stat-box accent">
-              <label>导出页</label>
-              <span id="statExport" class="value">000</span>
-            </div>
-            <div class="stat-box accent">
-              <label>导出行</label>
-              <span id="statExportLines" class="value">0000</span>
+            
+            <div class="ai-controls" style="margin-top: 20px; border-top: 1px dashed #3f4045; padding-top: 20px;">
+               <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button id="btnAiManual" class="tactile ai-btn block-btn" style="flex: 1;">
+                  <span class="icon">★</span> AI 生成说明书 / AI_MANUAL_GEN
+                </button>
+                <button id="btnAiConfig" class="icon-btn tactile" style="width: 50px; justify-content: center;" title="AI 设置">
+                  ⚙️
+                </button>
+               </div>
+              <div class="export-grid" style="margin-top: 10px;">
+                <button id="btnExportAiDocx" class="tactile">说明书 DOCX</button>
+                <button id="btnExportAiPdf" class="tactile">说明书 PDF</button>
+                <button id="btnExportAiBoth" class="tactile record">批量导出</button>
+                <button id="btnOpenOutputDirAi" class="tactile">打开文件夹</button>
+              </div>
             </div>
           </div>
 

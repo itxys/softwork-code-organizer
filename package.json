@@ -14,7 +14,8 @@
     "electron-builder": "^24.13.3"
   },
   "dependencies": {
-    "docx": "^8.5.0"
+    "docx": "^8.5.0",
+    "electron-store": "^8.2.0"
   },
   "build": {
     "appId": "com.houxiaohou.softregtool",
