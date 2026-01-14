@@ -1,11 +1,12 @@
 {
   "name": "softregtool",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "软著代码资料整理器 - 自动生成程序鉴别材料与AI辅助说明书",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "pack:win": "electron-builder --win --dir"
   },
   "author": "",
   "license": "MIT",
@@ -29,22 +30,23 @@
       "build/icon.icns"
     ],
     "asar": true,
-    "icon": "build/icon.ico",
+    "icon": "icon",
     "win": {
       "target": [
         "nsis"
       ],
-      "signAndEditExecutable": false,
-      "icon": "build/icon.ico",
-      "artifactName": "${productName}_Setup_${version}.${ext}"
+      "signAndEditExecutable": true,
+      "icon": "icon.ico",
+      "artifactName": "${productName}_Setup_${version}.${ext}",
+      "executableName": "softregtool"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "perMachine": false,
-      "installerIcon": "build/icon.ico",
-      "uninstallerIcon": "build/icon.ico",
-      "installerHeaderIcon": "build/icon.ico",
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico",
+      "installerHeaderIcon": "icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "软著鉴别材料生成器"
@@ -60,18 +62,21 @@
           ]
         }
       ],
-      "icon": "build/icon.icns"
+      "icon": "icon.icns"
     },
     "linux": {
       "target": [
         "AppImage"
       ],
-      "icon": "build/icon.png"
+      "icon": "icon.png"
     },
     "publish": [
       {
         "provider": "github"
       }
-    ]
+    ],
+    "directories": {
+      "buildResources": "build"
+    }
   }
 }
